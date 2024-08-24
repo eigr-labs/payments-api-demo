@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+import "google/api/annotations.proto";
+import "eigr/functions/protocol/actors/extensions.proto";
+
+service TransactionActor {
+  rpc Capture(CapturePayload) returns (TransactionResponse) {
+    option (google.api.http) = {
+      post: "/payments/capture"
+      body: "*"
+    };
+  }
+
+  rpc Refund(RefundPayload) returns (TransactionResponse) {
+    option (google.api.http) = {
+      post: "/payments/refund"
+      body: "*"
+    };
+  }
+}
+
+service PaymentActor {
+  rpc GetState(Noop) returns (PaymentState) {
+    option (google.api.http) = {
+      get: "/payments/breakdown/{order_refid}"
+    };
+  }
+}
+
+message Noop {}
+
+message PaymentState {
+  string order_refid = 1;
+  int32 paid_amount = 2;
+  repeated TransactionState transactions = 3;
+}
+
+enum TransactionType {
+  TRANSACTION_TYPE_CAPTURE = 0;
+  TRANSACTION_TYPE_REFUND = 1;
+}
+
+message TransactionState {
+  string id = 1;
+  string order_refid = 2;
+  int32 amount = 3;
+  string currency = 4;
+  string status = 5;
+  string external_refid = 6;
+  TransactionType type = 7;
+}
+
+message CapturePayload {
+  string id = 1 [(.eigr.functions.protocol.actors.actor_id) = true];
+  string order_refid = 2;
+  int32 amount = 3;
+  string currency = 4;
+}
+
+message RefundPayload {
+  string id = 1 [(.eigr.functions.protocol.actors.actor_id) = true];
+  string capture_transaction_id = 2;
+  int32 amount = 3;
+  string currency = 4;
+}
+
+message TransactionResponse {
+  string transaction_id = 1;
+  string status = 2;
+  string external_refid = 3;
+  string receipt_url = 4;
+}
+
+message CreatePaymentPayload {
+  string order_refid = 1;
+  string currency = 2;
+  int32 amount = 3;
+}
+
+message CreatePaymentResponse {
+  string url = 1;
+}
+
