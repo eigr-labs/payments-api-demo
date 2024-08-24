@@ -109,6 +109,15 @@ export interface RefundPayload {
     currency: string;
 }
 /**
+ * @generated from protobuf message GetStatePayload
+ */
+export interface GetStatePayload {
+    /**
+     * @generated from protobuf field: string order_refid = 1;
+     */
+    orderRefid: string;
+}
+/**
  * @generated from protobuf message TransactionResponse
  */
 export interface TransactionResponse {
@@ -160,13 +169,17 @@ export interface CreatePaymentResponse {
  */
 export enum TransactionType {
     /**
-     * @generated from protobuf enum value: TRANSACTION_TYPE_CAPTURE = 0;
+     * @generated from protobuf enum value: TRANSACTION_TYPE_UNKNOWN = 0;
      */
-    CAPTURE = 0,
+    UNKNOWN = 0,
     /**
-     * @generated from protobuf enum value: TRANSACTION_TYPE_REFUND = 1;
+     * @generated from protobuf enum value: TRANSACTION_TYPE_CAPTURE = 1;
      */
-    REFUND = 1
+    CAPTURE = 1,
+    /**
+     * @generated from protobuf enum value: TRANSACTION_TYPE_REFUND = 2;
+     */
+    REFUND = 2
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class Noop$Type extends MessageType<Noop> {
@@ -494,6 +507,53 @@ class RefundPayload$Type extends MessageType<RefundPayload> {
  */
 export const RefundPayload = new RefundPayload$Type();
 // @generated message type with reflection information, may provide speed optimized methods
+class GetStatePayload$Type extends MessageType<GetStatePayload> {
+    constructor() {
+        super("GetStatePayload", [
+            { no: 1, name: "order_refid", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "eigr.functions.protocol.actors.actor_id": true } }
+        ]);
+    }
+    create(value?: PartialMessage<GetStatePayload>): GetStatePayload {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.orderRefid = "";
+        if (value !== undefined)
+            reflectionMergePartial<GetStatePayload>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetStatePayload): GetStatePayload {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string order_refid */ 1:
+                    message.orderRefid = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GetStatePayload, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string order_refid = 1; */
+        if (message.orderRefid !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.orderRefid);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message GetStatePayload
+ */
+export const GetStatePayload = new GetStatePayload$Type();
+// @generated message type with reflection information, may provide speed optimized methods
 class TransactionResponse$Type extends MessageType<TransactionResponse> {
     constructor() {
         super("TransactionResponse", [
@@ -678,12 +738,12 @@ export const CreatePaymentResponse = new CreatePaymentResponse$Type();
  * @generated ServiceType for protobuf service TransactionActor
  */
 export const TransactionActor = new ServiceType("TransactionActor", [
-    { name: "Capture", options: { "google.api.http": { post: "/capture", body: "*" } }, I: CapturePayload, O: TransactionResponse },
-    { name: "Refund", options: { "google.api.http": { post: "/refund", body: "*" } }, I: RefundPayload, O: TransactionResponse }
+    { name: "Capture", options: { "google.api.http": { post: "/payments/capture", body: "*" } }, I: CapturePayload, O: TransactionResponse },
+    { name: "Refund", options: { "google.api.http": { post: "/payments/refund", body: "*" } }, I: RefundPayload, O: TransactionResponse }
 ]);
 /**
  * @generated ServiceType for protobuf service PaymentActor
  */
 export const PaymentActor = new ServiceType("PaymentActor", [
-    { name: "GetState", options: { "google.api.http": { get: "/breakdown/{order_refid}" } }, I: Noop, O: PaymentState }
+    { name: "GetState", options: { "google.api.http": { get: "/payments/breakdown" } }, I: GetStatePayload, O: PaymentState }
 ]);

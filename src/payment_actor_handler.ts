@@ -16,11 +16,11 @@ export const pushTransactionHandler = async (
     transactions: [...transactions]
   }
 
-  if (payload.status === 'succeeded' && payload.type == TransactionType.CAPTURE) {
+  if (payload.status === 'succeeded' && payload.type === TransactionType.CAPTURE) {
     newState.paidAmount += payload.amount
   }
 
-  if (payload.status === 'succeeded' && payload.type == TransactionType.REFUND) {
+  if (payload.status === 'succeeded' && payload.type === TransactionType.REFUND) {
     newState.paidAmount -= payload.amount
   }
 

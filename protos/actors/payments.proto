@@ -21,9 +21,9 @@ service TransactionActor {
 }
 
 service PaymentActor {
-  rpc GetState(Noop) returns (PaymentState) {
+  rpc GetState(GetStatePayload) returns (PaymentState) {
     option (google.api.http) = {
-      get: "/payments/breakdown/{order_refid}"
+      get: "/payments/breakdown"
     };
   }
 }
@@ -37,8 +37,9 @@ message PaymentState {
 }
 
 enum TransactionType {
-  TRANSACTION_TYPE_CAPTURE = 0;
-  TRANSACTION_TYPE_REFUND = 1;
+  TRANSACTION_TYPE_UNKNOWN = 0;
+  TRANSACTION_TYPE_CAPTURE = 1;
+  TRANSACTION_TYPE_REFUND = 2;
 }
 
 message TransactionState {
@@ -63,6 +64,10 @@ message RefundPayload {
   string capture_transaction_id = 2;
   int32 amount = 3;
   string currency = 4;
+}
+
+message GetStatePayload {
+  string order_refid = 1 [(.eigr.functions.protocol.actors.actor_id) = true];
 }
 
 message TransactionResponse {
