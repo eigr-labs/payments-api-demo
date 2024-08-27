@@ -21,6 +21,17 @@ export interface Noop {
  */
 export interface PaymentState {
     /**
+     * @generated from protobuf field: map<string, PaymentBreakdown> payments = 1;
+     */
+    payments: {
+        [key: string]: PaymentBreakdown;
+    };
+}
+/**
+ * @generated from protobuf message PaymentBreakdown
+ */
+export interface PaymentBreakdown {
+    /**
      * @generated from protobuf field: string order_refid = 1;
      */
     orderRefid: string;
@@ -107,15 +118,6 @@ export interface RefundPayload {
      * @generated from protobuf field: string currency = 4;
      */
     currency: string;
-}
-/**
- * @generated from protobuf message GetStatePayload
- */
-export interface GetStatePayload {
-    /**
-     * @generated from protobuf field: string order_refid = 1;
-     */
-    orderRefid: string;
 }
 /**
  * @generated from protobuf message TransactionResponse
@@ -210,21 +212,88 @@ export const Noop = new Noop$Type();
 class PaymentState$Type extends MessageType<PaymentState> {
     constructor() {
         super("PaymentState", [
-            { no: 1, name: "order_refid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "paid_amount", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-            { no: 3, name: "transactions", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => TransactionState }
+            { no: 1, name: "payments", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "message", T: () => PaymentBreakdown } }
         ]);
     }
     create(value?: PartialMessage<PaymentState>): PaymentState {
         const message = globalThis.Object.create((this.messagePrototype!));
-        message.orderRefid = "";
-        message.paidAmount = 0;
-        message.transactions = [];
+        message.payments = {};
         if (value !== undefined)
             reflectionMergePartial<PaymentState>(this, message, value);
         return message;
     }
     internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: PaymentState): PaymentState {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* map<string, PaymentBreakdown> payments */ 1:
+                    this.binaryReadMap1(message.payments, reader, options);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    private binaryReadMap1(map: PaymentState["payments"], reader: IBinaryReader, options: BinaryReadOptions): void {
+        let len = reader.uint32(), end = reader.pos + len, key: keyof PaymentState["payments"] | undefined, val: PaymentState["payments"][any] | undefined;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case 1:
+                    key = reader.string();
+                    break;
+                case 2:
+                    val = PaymentBreakdown.internalBinaryRead(reader, reader.uint32(), options);
+                    break;
+                default: throw new globalThis.Error("unknown map entry field for field PaymentState.payments");
+            }
+        }
+        map[key ?? ""] = val ?? PaymentBreakdown.create();
+    }
+    internalBinaryWrite(message: PaymentState, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* map<string, PaymentBreakdown> payments = 1; */
+        for (let k of globalThis.Object.keys(message.payments)) {
+            writer.tag(1, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k);
+            writer.tag(2, WireType.LengthDelimited).fork();
+            PaymentBreakdown.internalBinaryWrite(message.payments[k], writer, options);
+            writer.join().join();
+        }
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message PaymentState
+ */
+export const PaymentState = new PaymentState$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class PaymentBreakdown$Type extends MessageType<PaymentBreakdown> {
+    constructor() {
+        super("PaymentBreakdown", [
+            { no: 1, name: "order_refid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "paid_amount", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
+            { no: 3, name: "transactions", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => TransactionState }
+        ]);
+    }
+    create(value?: PartialMessage<PaymentBreakdown>): PaymentBreakdown {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.orderRefid = "";
+        message.paidAmount = 0;
+        message.transactions = [];
+        if (value !== undefined)
+            reflectionMergePartial<PaymentBreakdown>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: PaymentBreakdown): PaymentBreakdown {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
@@ -249,7 +318,7 @@ class PaymentState$Type extends MessageType<PaymentState> {
         }
         return message;
     }
-    internalBinaryWrite(message: PaymentState, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: PaymentBreakdown, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* string order_refid = 1; */
         if (message.orderRefid !== "")
             writer.tag(1, WireType.LengthDelimited).string(message.orderRefid);
@@ -266,9 +335,9 @@ class PaymentState$Type extends MessageType<PaymentState> {
     }
 }
 /**
- * @generated MessageType for protobuf message PaymentState
+ * @generated MessageType for protobuf message PaymentBreakdown
  */
-export const PaymentState = new PaymentState$Type();
+export const PaymentBreakdown = new PaymentBreakdown$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class TransactionState$Type extends MessageType<TransactionState> {
     constructor() {
@@ -507,53 +576,6 @@ class RefundPayload$Type extends MessageType<RefundPayload> {
  */
 export const RefundPayload = new RefundPayload$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class GetStatePayload$Type extends MessageType<GetStatePayload> {
-    constructor() {
-        super("GetStatePayload", [
-            { no: 1, name: "order_refid", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "eigr.functions.protocol.actors.actor_id": true } }
-        ]);
-    }
-    create(value?: PartialMessage<GetStatePayload>): GetStatePayload {
-        const message = globalThis.Object.create((this.messagePrototype!));
-        message.orderRefid = "";
-        if (value !== undefined)
-            reflectionMergePartial<GetStatePayload>(this, message, value);
-        return message;
-    }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetStatePayload): GetStatePayload {
-        let message = target ?? this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-            let [fieldNo, wireType] = reader.tag();
-            switch (fieldNo) {
-                case /* string order_refid */ 1:
-                    message.orderRefid = reader.string();
-                    break;
-                default:
-                    let u = options.readUnknownField;
-                    if (u === "throw")
-                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-                    let d = reader.skip(wireType);
-                    if (u !== false)
-                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-            }
-        }
-        return message;
-    }
-    internalBinaryWrite(message: GetStatePayload, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* string order_refid = 1; */
-        if (message.orderRefid !== "")
-            writer.tag(1, WireType.LengthDelimited).string(message.orderRefid);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-    }
-}
-/**
- * @generated MessageType for protobuf message GetStatePayload
- */
-export const GetStatePayload = new GetStatePayload$Type();
-// @generated message type with reflection information, may provide speed optimized methods
 class TransactionResponse$Type extends MessageType<TransactionResponse> {
     constructor() {
         super("TransactionResponse", [
@@ -745,5 +767,5 @@ export const TransactionActor = new ServiceType("TransactionActor", [
  * @generated ServiceType for protobuf service PaymentActor
  */
 export const PaymentActor = new ServiceType("PaymentActor", [
-    { name: "GetState", options: { "google.api.http": { get: "/payments/breakdown" } }, I: GetStatePayload, O: PaymentState }
+    { name: "GetState", options: { "google.api.http": { get: "/payments/breakdown" } }, I: Noop, O: PaymentState }
 ]);

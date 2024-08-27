@@ -21,7 +21,7 @@ service TransactionActor {
 }
 
 service PaymentActor {
-  rpc GetState(GetStatePayload) returns (PaymentState) {
+  rpc GetState(Noop) returns (PaymentState) {
     option (google.api.http) = {
       get: "/payments/breakdown"
     };
@@ -31,6 +31,10 @@ service PaymentActor {
 message Noop {}
 
 message PaymentState {
+  map<string, PaymentBreakdown> payments = 1;
+}
+
+message PaymentBreakdown {
   string order_refid = 1;
   int32 paid_amount = 2;
   repeated TransactionState transactions = 3;
@@ -64,10 +68,6 @@ message RefundPayload {
   string capture_transaction_id = 2;
   int32 amount = 3;
   string currency = 4;
-}
-
-message GetStatePayload {
-  string order_refid = 1 [(.eigr.functions.protocol.actors.actor_id) = true];
 }
 
 message TransactionResponse {

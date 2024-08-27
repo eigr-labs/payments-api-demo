@@ -1,5 +1,5 @@
 import { ActorContext, Value, payloadFor } from '@eigr/spawn-sdk'
-import { CapturePayload, RefundPayload, TransactionResponse, TransactionState, TransactionType, PaymentState } from './generated/actors/payments'
+import { CapturePayload, TransactionResponse, TransactionState, TransactionType, PaymentState } from '../generated/actors/payments'
 import Stripe from 'stripe'
 import spawn from '@eigr/spawn-sdk'
 
@@ -9,6 +9,8 @@ export const captureHandler = async (
   context: ActorContext<TransactionState>,
   payload: CapturePayload
 ): Promise<Value> => {
+  console.log('captureHandler', { ...payload })
+
   // if transaction already has an external refid
   // then we can assume it has already been process, this will
   // prevent double processing of the same transaction and act as a idempotency check
@@ -21,11 +23,6 @@ export const captureHandler = async (
     })
   }
 
-  console.log('captureHandler', { ...payload })
-
-  // make sure payment actor is listening
-  await spawn.invoke(payload.orderRefid, { ref: 'PaymentActor', action: 'GetState', response: PaymentState })
-  
   let paymentIntent: Stripe.PaymentIntent;
 
   paymentIntent = await stripe.paymentIntents.create({
@@ -69,53 +66,3 @@ export const captureHandler = async (
     })
 }
 
-export const refundHandler = async (
-  context: ActorContext<TransactionState>,
-  payload: RefundPayload
-): Promise<Value> => {
-  if (context.state.externalRefid) {
-    return Value.of().response({
-      status: context.state.status,
-      externalRefid: context.state.externalRefid,
-      transactionId: context.self.name,
-      receiptUrl: ""
-    })
-  }
-
-  console.log('refundHandler', { ...payload })
-
-  const captureTxn: TransactionState = await spawn.invoke(payload.captureTransactionId, { action: 'GetState', response: TransactionState, ref: 'TransactionActor' })
-  await spawn.invoke(captureTxn.orderRefid, { ref: 'PaymentActor', action: 'GetState', response: PaymentState })
-
-  const refund = await stripe.refunds.create({
-    amount: payload.amount,
-    payment_intent: captureTxn.externalRefid
-  })
-
-  let charge: Stripe.Charge = await stripe.charges.retrieve(refund.charge as string)
-  
-  const newState: TransactionState = {
-    id: context.self.name,
-    orderRefid: captureTxn.orderRefid,
-    status: refund.status!,
-    currency: payload.currency,
-    amount: payload.amount,
-    externalRefid: refund.id,
-    type: TransactionType.REFUND
-  }
-
-  const response: TransactionResponse = {
-    status: refund.status!,
-    externalRefid: refund.id,
-    receiptUrl: charge.receipt_url!,
-    transactionId: context.self.name
-  }
-
-  return Value.of<TransactionState, TransactionResponse>()
-    .state(newState)
-    .response(response)
-    .broadcast({
-      payload: payloadFor(TransactionState, newState),
-      channel: "transactions.created"
-    })
-}

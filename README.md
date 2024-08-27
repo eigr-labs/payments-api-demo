@@ -1,6 +1,6 @@
-# payments_api
+# Payments-API Spawn Example
 
-This is a [Spawn](https://github.com/eigr/spawn) app
+This is a [Spawn](https://github.com/eigr/spawn) example app
 
 # Running in dev mode
 
@@ -18,19 +18,20 @@ yarn start
 
 ### Invoking your Actor
 
-You can now invoke your Actor with:
+You can now invoke actors with:
 
 ```
-curl -vvv -H 'Accept: application/json' http://localhost:9980/v1/hello_world?message=World
+# to capture
+curl -i -H 'Accept: application/json' -H 'Content-Type: application/json' -X POST -d '{"id":"spawn.txn_01","amount":1000,"currency":"usd","orderRefid":"order_01"}' http://localhost:9980/payments/capture
+
+# to refund
+curl -i -H 'Accept: application/json' -H 'Content-Type: application/json' -X POST -d '{"id":"spawn.txn_02","amount":500,"currency":"usd","captureTransactionId":"spawn.txn_01"}' http://localhost:9980/payments/refund
+
+# to get the breakdown
+curl -i -H 'Accept: application/json' -H 'Content-Type: application/json' http://localhost:9980/payments/breakdown
 ```
 
 > **NOTE**: This uses the HTTP transcoding from the protobuf definition, you can also invoke this actor from other Spawn hosts.
-
-# Setup for production
-
-```
-spawn new prod
-```
 
 # Documentation
 
